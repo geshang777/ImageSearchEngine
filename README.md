@@ -29,8 +29,8 @@ pip install -r requirements.txt
 │   └── 000002.jpg
 └── uploaded
     └── 2023-11-23T15.11.33.659328_5437.jpg
-python extractor.py
-python build_kdtree.py
+python extractor.py#若下载了feature文件则不用运行
+python build_kdtree.py#
 python server.py
 #访问localhost:5000即可进入搜索引擎
 ```
