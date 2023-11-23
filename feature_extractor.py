@@ -1,29 +1,38 @@
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
-from tensorflow.keras.models import Model
-import numpy as np
 
-# See https://keras.io/api/applications/ for details
+import torch
+import torchvision
+import torchvision.transforms as transforms
 
+# 定义一个类，用于封装resnet50模型和图像特征提取的方法
 class FeatureExtractor:
+
+    # 初始化类，加载预训练的resnet50模型
     def __init__(self):
-        base_model = VGG16(weights='imagenet')
-        self.model = Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
+        self.model = torchvision.models.resnet50(weights="IMAGENET1K_V1")
+        # 设置模型为评估模式，不进行梯度更新
+        self.model.eval()
+        # 定义一个变换，用于将图像转换为适合模型输入的张量
+        self.transform = transforms.Compose([
+            transforms.Resize(256), # 调整图像大小为256x256
+            transforms.CenterCrop(224), # 从中心裁剪出224x224的区域
+            transforms.ToTensor(), # 将图像转换为张量，范围为[0, 1]
+            transforms.Normalize( # 标准化张量，使用ImageNet的均值和标准差
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225]
+            )
+        ])
 
-    def extract(self, img):
-        """
-        Extract a deep feature from an input image
-        Args:
-            img: from PIL.Image.open(path) or tensorflow.keras.preprocessing.image.load_img(path)
+    # 定义一个方法，用于提取图像的特征
+    def extract(self, image):
+        # 将图像变换为适合模型输入的张量
+        tensor = self.transform(image)
+        # 在张量上增加一个维度，表示批量大小为1
+        tensor = tensor.unsqueeze(0)
+        # 使用模型提取图像的特征，得到一个2048维的向量
+        feature = self.model(tensor)
+        # 将特征向量转换为一维的张量
+        feature = feature.view(-1)
+        # 返回特征向量
+        return feature.detach().numpy()
 
-        Returns:
-            feature (np.ndarray): deep feature with the shape=(4096, )
-        """
-        img = img.resize((224, 224))  # VGG must take a 224x224 img as an input
-        img = img.convert('RGB')  # Make sure img is color
-        x = image.img_to_array(img)  # To np.array. Height x Width x Channel. dtype=float32
-        x = np.expand_dims(x, axis=0)  # (H, W, C)->(1, H, W, C), where the first elem is the number of img
-        x = preprocess_input(x)  # Subtracting avg values for each pixel
-        feature = self.model.predict(x)[0]  # (1, 4096) -> (4096, )
-        return feature / np.linalg.norm(feature)  # Normalize
 

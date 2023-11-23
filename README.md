@@ -1,59 +1,42 @@
-# Simple Image Search Engine
+# Image Search Engine
 
-
-## [Demo](https://www.simple-image-search.xyz/)
-![](http://yusukematsui.me/project/sis/img/screencapture2.jpg)
-
-## Workflow
-![](http://yusukematsui.me/project/sis/img/overview.png)
-
-## News
-- [2020.06] Updated many parts of the code for [CVPR 2020 tutorial](https://matsui528.github.io/cvpr2020_tutorial_retrieval/)
+![Alt text](/Users/geshang/Downloads/SearchEngine/figures/ui.jpg)
 
 
 ## Overview
-- Simple image-based image search engine using Keras + Flask. You can launch the search engine just by running two python scripts.
-- `offline.py`: This script extracts a deep-feature from each database image. Each feature is a 4096D fc6 activation from a VGG16 model with ImageNet pre-trained weights.
-- `server.py`: This script runs a web-server. You can send your query image to the server via a Flask web-interface. The server finds similar images to the query by a simple linear scan.
-- GPUs are not required.
-- Tested on Ubuntu 18.04 and WSL2 (Ubuntu 20.04)
 
-## Links
-- [Demo](https://www.simple-image-search.xyz/)
-- [Course at CVPR2020](https://matsui528.github.io/cvpr2020_tutorial_retrieval/) [[slides](https://speakerdeck.com/matsui_528/cvpr20-tutorial-live-coding-demo-to-implement-an-image-search-engine-from-scratch)] [[video](https://www.youtube.com/watch?v=M0Y9_vBmYXU)]
-- [Project page](http://yusukematsui.me/project/sis/sis.html)
-- [Tutorial](https://ourcodeworld.com/articles/read/981/how-to-implement-an-image-search-engine-using-keras-tensorflow-with-python-3-in-ubuntu-18-04) and [Video](https://www.youtube.com/watch?v=Htu7b8PUyRg) by [@sdkcarlos](https://github.com/sdkcarlos)
+- `extractor.py`:使用在imagenet1k上预训练的resnet50来提取特征，将每张图片的特征保存为.npy文件用于kd树的构建
+-  `build_kdtree.py`:构建kd树用于搜索
+- `server.py`: 这段脚本运行一个网络服务器。可以通过 Flask 网络界面将图片返回到本地。本地通过kd树搜索最相似的图片展示到网页上
+- GPUs are not required.
+
+## Link
+
+- `images`:链接: https://pan.baidu.com/s/1JCMsaoHiheSdz0Qwo4PFDw?pwd=3djh 提取码: 3djh 复制这段内容后打开百度网盘手机App，操作更方便哦
+- `feature`:链接: https://pan.baidu.com/s/1Jyuta8VPqA-7-Pc55Eq0RQ?pwd=ayxi 提取码: ayxi
 
 ## Usage
 ```bash
-git clone https://github.com/matsui528/sis.git
-cd sis
+cd SearchEngine
 pip install -r requirements.txt
-
-# Put your image files (*.jpg) on static/img
-
-# Then fc6 features are extracted and saved on static/feature
-# Note that it takes time for the first time because Keras downloads the VGG weights.
-python offline.py
-
-# Now you can do the search via localhost:5000
+# 从链接下载images和feature将static中的文件夹替换为对应文件，文件结构如下
+.
+├── feature
+│   ├── 000001.npy
+│   └── 000002.npy
+├── images
+│   ├── 000001.jpg
+│   └── 000002.jpg
+└── uploaded
+    └── 2023-11-23T15.11.33.659328_5437.jpg
+python extractor.py
+python build_kdtree.py
 python server.py
+#访问localhost:5000即可进入搜索引擎
 ```
 
-## Advanced: Launch on AWS
-- You can easily launch the search engine server on AWS EC2. Please first open the port 5000 and launch an EC2 instance. Note that you need to create a security group such that the port 5000 is opened.
-- A middle-level CPU instance is sufficient, e.g., m5.large.
-- After you log-in to the instance by ssh, please setup the python environment (e.g., by [anaconda](https://docs.anaconda.com/anaconda/install/linux/)).
-- Run `offline.py` and `server.py`.
-- After you run `python server.py`, you can access the server from your browser via something like `http://ec2-XX-XX-XXX-XXX.us-west-2.compute.amazonaws.com:5000`
-- (Advanced) If you'd like to deploy the system in a secure way, please consider running the search engine with the usual web server, e.g., uWSGI + nginx.
-- (Advanced) If you want to deploy the system serverlessly, [AWS AppRunner](https://docs.aws.amazon.com/apprunner/latest/dg/what-is-apprunner.html) is the way to go.
+## TODOList
 
-
-## Citation
-
-    @misc{sis,
-	    author = {Yusuke Matsui},
-	    title = {Simple Image Search Engine},
-	    howpublished = {\url{https://github.com/matsui528/sis}}
-    }
+-  当前数据集只有食物数据，且类别比较少，需要扩充
+-  特征提取模型为预训练模型，可以在新的数据集上训练
+-  使用更高效的搜索算法
