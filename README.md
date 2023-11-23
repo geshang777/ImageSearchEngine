@@ -1,6 +1,6 @@
 # Image Search Engine
 
-![Alt text](./SearchEngine/figures/ui.jpg)
+![Alt text](./figures/ui.jpg)
 
 
 ## Overview
