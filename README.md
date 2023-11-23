@@ -20,17 +20,26 @@
 cd SearchEngine
 pip install -r requirements.txt
 # 从链接下载images和feature将static中的文件夹替换为对应文件，文件结构如下
-.
-├── feature
-│   ├── 000001.npy
-│   └── 000002.npy
-├── images
-│   ├── 000001.jpg
-│   └── 000002.jpg
-└── uploaded
-    └── 2023-11-23T15.11.33.659328_5437.jpg
+├── static
+│   ├── images
+│   │   ├── file1
+│   │   │   ├── 00001.jpg
+│   │   │   └── 00002.jpg
+│   │   └── file2
+│   │       ├── 00001.jpg
+│   │       └── 00002.jpg
+│   ├── feature
+│   │   ├── file1
+│   │   │   ├── 00001.npy
+│   │   │   └── 00002.npy
+│   │   └── file2
+│   │       ├── 00001.npy
+│   │       └── 00002.npy
+│   └── uploaded
+│       ├── 00001.jpg
+│       └── 00002.jpg
 python extractor.py#若下载了feature文件则不用运行
-python build_kdtree.py#
+python build_kdtree.py
 python server.py
 #访问localhost:5000即可进入搜索引擎
 ```
