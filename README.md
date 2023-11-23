@@ -1,6 +1,6 @@
 # Image Search Engine
 
-![Alt text](/Users/geshang/Downloads/SearchEngine/figures/ui.jpg)
+![Alt text](./SearchEngine/figures/ui.jpg)
 
 
 ## Overview
